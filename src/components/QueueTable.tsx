@@ -148,15 +148,15 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
 
       {/* Table Grid */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full min-w-[1100px] table-fixed text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 text-[11px] uppercase tracking-wider font-semibold">
-              <th className="px-4 py-3">Queue Status / Countdown</th>
-              <th className="px-4 py-3">Company & Contact</th>
-              <th className="px-4 py-3">Audited Docs URL & Excerpt</th>
-              <th className="px-4 py-3">Google Style Guide Hook</th>
-              <th className="px-4 py-3">Scheduled Dispatch</th>
-              <th className="px-4 py-3 text-right">Action</th>
+              <th className="w-[190px] px-4 py-3">Queue Status / Countdown</th>
+              <th className="w-[250px] px-4 py-3">Company & Contact</th>
+              <th className="w-[230px] px-4 py-3">Audited Docs URL & Excerpt</th>
+              <th className="w-[150px] px-4 py-3">Google Style Guide Hook</th>
+              <th className="w-[160px] px-4 py-3">Scheduled Dispatch</th>
+              <th className="w-[100px] px-4 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -180,13 +180,13 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
                     </div>
                     <h4 className="text-base font-semibold text-white">No Leads in Selected View</h4>
                     <p className="text-xs text-slate-400">
-                      Click below to generate 30 fresh leads across global English-speaking markets (US, UK, CA, AU, IE, NZ) with automatic rollover of previous unsent leads and 20-minute interval spacing.
+                      The engine checks company sites for a published role contact email and audits their actual documentation. It only queues a pitch when it finds both; batches may contain fewer than 30 leads.
                     </p>
                     <button
                       onClick={onGenerate}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-md transition"
                     >
-                      Generate 30 Leads (Auto-Rollover)
+                      Find Prospects (Up to 30)
                     </button>
                   </div>
                 </td>
@@ -202,7 +202,7 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
           Showing {filteredLeads.length} of {leads.length} total pitches ({rolloverCount} rolled over)
         </span>
         <span className="font-mono text-[11px] text-slate-400">
-          Strict 20-minute spacing • Max 30 pitches/day • Endless catalog
+          20-minute spacing • Max 30 pitches/day • Verified prospects only
         </span>
       </div>
     </div>

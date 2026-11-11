@@ -1,10 +1,41 @@
 import { Lead, WorkerState } from './types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+const LOCAL_API_BASE = 'http://127.0.0.1:8000/api';
+
+function getApiBase(): string {
+  const configuredBase = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
+  if (configuredBase) {
+    return configuredBase;
+  }
+
+  const localHosts = ['localhost', '127.0.0.1', '::1'];
+  if (typeof window === 'undefined' || localHosts.includes(window.location.hostname)) {
+    return LOCAL_API_BASE;
+  }
+
+  throw new Error(
+    'NEXT_PUBLIC_API_URL is not configured. Set it to your Django API URL, including /api.'
+  );
+}
+
+async function fetchApi(path: string, init?: RequestInit): Promise<Response> {
+  const url = `${getApiBase()}${path}`;
+  try {
+    return await fetch(url, init);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(
+        `Could not reach the Django API at ${url}. Check that the backend is running, ` +
+        'the API URL is correct, and the backend allows this frontend origin over HTTPS/CORS.'
+      );
+    }
+    throw error;
+  }
+}
 
 export async function fetchLeads(status?: string): Promise<Lead[]> {
-  const url = status ? `${API_BASE}/leads/?status=${status}` : `${API_BASE}/leads/`;
-  const res = await fetch(url, { cache: 'no-store' });
+  const path = status ? `/leads/?status=${encodeURIComponent(status)}` : '/leads/';
+  const res = await fetchApi(path, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`Failed to fetch leads: ${res.statusText}`);
   }
@@ -13,7 +44,7 @@ export async function fetchLeads(status?: string): Promise<Lead[]> {
 }
 
 export async function fetchWorkerStatus(): Promise<{ worker: WorkerState; server_time: string }> {
-  const res = await fetch(`${API_BASE}/worker/status/`, { cache: 'no-store' });
+  const res = await fetchApi('/worker/status/', { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`Failed to fetch worker status: ${res.statusText}`);
   }
@@ -21,7 +52,7 @@ export async function fetchWorkerStatus(): Promise<{ worker: WorkerState; server
 }
 
 export async function toggleWorkerPause(is_paused?: boolean): Promise<{ is_paused: boolean; message: string }> {
-  const res = await fetch(`${API_BASE}/worker/toggle-pause/`, {
+  const res = await fetchApi('/worker/toggle-pause/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(is_paused !== undefined ? { is_paused } : {})
@@ -33,7 +64,7 @@ export async function toggleWorkerPause(is_paused?: boolean): Promise<{ is_pause
 }
 
 export async function toggleAutoDaily(): Promise<{ auto_generate_daily: boolean; message: string }> {
-  const res = await fetch(`${API_BASE}/worker/toggle-auto-daily/`, {
+  const res = await fetchApi('/worker/toggle-auto-daily/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -44,7 +75,7 @@ export async function toggleAutoDaily(): Promise<{ auto_generate_daily: boolean;
 }
 
 export async function generateBatch(count: number = 30, include_rollover: boolean = true): Promise<{ leads: Lead[]; message: string }> {
-  const res = await fetch(`${API_BASE}/queue/generate/`, {
+  const res = await fetchApi('/queue/generate/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ count, include_rollover })
@@ -56,7 +87,7 @@ export async function generateBatch(count: number = 30, include_rollover: boolea
 }
 
 export async function rolloverQueue(count: number = 30): Promise<{ leads: Lead[]; message: string }> {
-  const res = await fetch(`${API_BASE}/queue/rollover/`, {
+  const res = await fetchApi('/queue/rollover/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ count })
@@ -68,7 +99,7 @@ export async function rolloverQueue(count: number = 30): Promise<{ leads: Lead[]
 }
 
 export async function processQueueNow(): Promise<{ dispatched_count: number; worker: WorkerState }> {
-  const res = await fetch(`${API_BASE}/queue/process-now/`, {
+  const res = await fetchApi('/queue/process-now/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -79,7 +110,7 @@ export async function processQueueNow(): Promise<{ dispatched_count: number; wor
 }
 
 export async function sendLeadNow(id: number): Promise<{ success: boolean; lead: Lead }> {
-  const res = await fetch(`${API_BASE}/leads/${id}/send-now/`, {
+  const res = await fetchApi(`/leads/${id}/send-now/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -90,7 +121,7 @@ export async function sendLeadNow(id: number): Promise<{ success: boolean; lead:
 }
 
 export async function resetQueue(): Promise<{ success: boolean; message: string }> {
-  const res = await fetch(`${API_BASE}/queue/reset/`, {
+  const res = await fetchApi('/queue/reset/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   });

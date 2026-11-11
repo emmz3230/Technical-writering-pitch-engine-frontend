@@ -108,7 +108,7 @@ export default function StatsOverview({ worker }: StatsOverviewProps) {
           </span>
         </div>
         <p className="text-xs text-slate-400 truncate">
-          Generates 30 leads daily • Endless catalog
+          Finds verified prospects • Up to 30 pitches daily
         </p>
       </div>
     </div>

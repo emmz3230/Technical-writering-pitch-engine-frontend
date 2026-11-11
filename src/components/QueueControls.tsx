@@ -122,7 +122,7 @@ export default function QueueControls({ worker, onRefresh }: QueueControlsProps)
           )}
         </button>
 
-        {/* Generate Batch of 30 Leads (Endless Catalog + Rollover) */}
+        {/* Generate a batch of verified prospects */}
         <button
           onClick={handleGenerate30}
           disabled={loadingAction !== null}
@@ -131,7 +131,7 @@ export default function QueueControls({ worker, onRefresh }: QueueControlsProps)
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>{loadingAction === 'generate' ? 'Preparing 30 Leads...' : 'Generate 30 Leads (Auto-Rollover)'}</span>
+          <span>{loadingAction === 'generate' ? 'Finding verified prospects...' : 'Find Prospects (Up to 30)'}</span>
         </button>
 
         {/* Rollover Unsent Leads Button */}
@@ -158,7 +158,7 @@ export default function QueueControls({ worker, onRefresh }: QueueControlsProps)
               ? 'bg-indigo-950/60 text-indigo-300 border-indigo-700/60 hover:bg-indigo-900/60'
               : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
           }`}
-          title="When enabled, the server automatically generates 30 leads every day on midnight rollover"
+          title="When enabled, the server discovers verified prospects for the daily queue"
         >
           <span className={`w-2 h-2 rounded-full ${isAutoDaily ? 'bg-indigo-400 animate-pulse' : 'bg-slate-500'}`} />
           <span>Daily 24h Auto-Run: {isAutoDaily ? 'ON' : 'OFF'}</span>

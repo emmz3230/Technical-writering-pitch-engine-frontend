@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [worker, setWorker] = useState<WorkerState | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [serverOnline, setServerOnline] = useState<boolean>(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -23,9 +24,13 @@ export default function DashboardPage() {
       setLeads(leadsData);
       setWorker(workerData.worker);
       setServerOnline(true);
+      setConnectionError(null);
     } catch (err) {
       console.error('Error polling pitch engine data:', err);
       setServerOnline(false);
+      setConnectionError(
+        err instanceof Error ? err.message : 'Could not connect to the Django API.'
+      );
     }
   }, []);
 
@@ -103,6 +108,12 @@ export default function DashboardPage() {
             </div>
           </div>
         </header>
+
+        {connectionError && (
+          <div role="alert" className="mb-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            {connectionError}
+          </div>
+        )}
 
         {/* 1. Stats Overview Bar (Daily Cap, Domain Health, Counters) */}
         <StatsOverview worker={worker} />

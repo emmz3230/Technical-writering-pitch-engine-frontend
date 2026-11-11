@@ -64,14 +64,14 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
         );
       case 'failed':
         return (
-          <div className="flex flex-col gap-0.5 items-start max-w-[200px]">
+          <div className="flex w-full min-w-0 flex-col gap-0.5 items-start">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40">
               <svg className="w-3 h-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
               Failed
             </span>
-            <span className="text-[11px] text-rose-400 truncate" title={lead.error_message || 'SMTP delivery error'}>
+            <span className="block w-full whitespace-normal break-words text-[11px] leading-4 text-rose-400" title={lead.error_message || 'SMTP delivery error'}>
               {lead.error_message || 'SMTP Connection Error'}
             </span>
           </div>
@@ -90,29 +90,36 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
   return (
     <tr className={`transition-colors duration-150 ${getRowClasses()}`}>
       {/* 1. Status & Live Timer */}
-      <td className="px-4 py-3.5 whitespace-nowrap">
-        {getStatusBadge()}
+      <td className="w-[190px] max-w-[190px] overflow-hidden px-4 py-3.5">
+        <div className="w-full min-w-0 overflow-hidden">
+          {getStatusBadge()}
+        </div>
       </td>
 
       {/* 2. Target Company & Region */}
-      <td className="px-4 py-3.5">
-        <div className="flex items-center gap-2">
+      <td className="w-[250px] max-w-[250px] overflow-hidden px-4 py-3.5">
+        <div className="flex min-w-0 items-center gap-2">
           {getCountryBadge(lead.country)}
-          <div>
+          <div className="min-w-0">
             <div className="font-semibold text-sm text-white flex items-center gap-1.5">
-              {lead.company_name}
+              <span className="truncate">{lead.company_name}</span>
             </div>
-            <div className="text-xs text-slate-400 flex items-center gap-1">
-              <span>{lead.contact_name || 'Technical Writer Lead'}</span>
-              <span>•</span>
-              <span className="font-mono text-slate-400">{lead.contact_email}</span>
+            <div className="flex min-w-0 items-center gap-1 text-xs text-slate-400">
+              <span className="min-w-0 truncate">{lead.contact_name || 'Technical Writer Lead'}</span>
+              <span className="shrink-0">•</span>
+              <span
+                className={`block min-w-0 truncate font-mono ${lead.contact_email ? 'text-slate-400' : 'text-amber-400'}`}
+                title={lead.contact_email || 'A verified contact email is required before sending.'}
+              >
+                {lead.contact_email || 'Email required'}
+              </span>
             </div>
           </div>
         </div>
       </td>
 
       {/* 3. Documentation URL & Passive Voice Snippet */}
-      <td className="px-4 py-3.5 max-w-xs">
+      <td className="w-[230px] max-w-[230px] overflow-hidden px-4 py-3.5">
         <div className="space-y-1">
           <a
             href={lead.doc_url}
@@ -134,7 +141,7 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
       </td>
 
       {/* 4. Google Style Guide Hook Pill */}
-      <td className="px-4 py-3.5">
+      <td className="w-[150px] max-w-[150px] overflow-hidden px-4 py-3.5">
         <button
           onClick={() => onPreview(lead)}
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition"
@@ -147,13 +154,13 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
       </td>
 
       {/* 5. Scheduled Send Time */}
-      <td className="px-4 py-3.5 whitespace-nowrap text-xs font-mono text-slate-300">
+      <td className="w-[160px] max-w-[160px] overflow-hidden px-4 py-3.5 whitespace-nowrap text-xs font-mono text-slate-300">
         <div>{new Date(lead.scheduled_send_time).toLocaleDateString()}</div>
         <div className="text-slate-500 font-semibold">{new Date(lead.scheduled_send_time).toLocaleTimeString()}</div>
       </td>
 
       {/* 6. Instant Action */}
-      <td className="px-4 py-3.5 whitespace-nowrap text-right">
+      <td className="w-[100px] max-w-[100px] overflow-hidden px-4 py-3.5 whitespace-nowrap text-right">
         {lead.status === 'queued' ? (
           <button
             onClick={() => onSendNow(lead.id)}

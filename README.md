@@ -16,6 +16,15 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Django API configuration
+
+Local development defaults to `http://127.0.0.1:8000/api`; start the Django backend on
+port 8000 before opening the dashboard. For a deployed frontend, set
+`NEXT_PUBLIC_API_URL` in the frontend hosting environment to the public Django API base
+URL, including `/api` (for example, `https://your-backend.example.com/api`), then
+redeploy. The backend must be reachable over HTTPS and allow requests from the frontend
+origin. See `.env.example` for the local setting.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
