@@ -86,6 +86,22 @@ export async function generateBatch(count: number = 30, include_rollover: boolea
   return await res.json();
 }
 
+export async function generateProductHuntBatch(
+  count: number = 30,
+  lookback_hours: number = 72
+): Promise<{ leads: Lead[]; message: string }> {
+  const res = await fetchApi('/queue/generate/product-hunt/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ count, lookback_hours })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error || `Failed to discover Product Hunt leads: ${res.statusText}`);
+  }
+  return await res.json();
+}
+
 export async function rolloverQueue(count: number = 30): Promise<{ leads: Lead[]; message: string }> {
   const res = await fetchApi('/queue/rollover/', {
     method: 'POST',

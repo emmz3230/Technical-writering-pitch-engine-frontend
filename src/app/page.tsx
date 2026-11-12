@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Lead, WorkerState } from '@/lib/types';
-import { fetchLeads, fetchWorkerStatus, sendLeadNow, generateBatch } from '@/lib/api';
+import {
+  fetchLeads,
+  fetchWorkerStatus,
+  sendLeadNow,
+  generateBatch,
+  generateProductHuntBatch,
+} from '@/lib/api';
 import StatsOverview from '@/components/StatsOverview';
 import QueueControls from '@/components/QueueControls';
 import QueueTable from '@/components/QueueTable';
@@ -61,6 +67,16 @@ export default function DashboardPage() {
       loadData();
     } catch (err: unknown) {
       alert(`Error generating batch: ${(err as Error).message}`);
+    }
+  };
+
+  const handleGenerateProductHuntBatch = async () => {
+    try {
+      const result = await generateProductHuntBatch(30, 72);
+      alert(result.message);
+      loadData();
+    } catch (err: unknown) {
+      alert(`Product Hunt discovery failed: ${(err as Error).message}`);
     }
   };
 
@@ -127,6 +143,7 @@ export default function DashboardPage() {
           onPreview={setSelectedLead}
           onSendNow={handleSendNow}
           onGenerate={handleGenerateBatch}
+          onGenerateProductHunt={handleGenerateProductHuntBatch}
         />
 
         {/* 4. Google Style Guide Audit & Email Inspection Modal */}

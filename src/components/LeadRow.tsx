@@ -10,6 +10,13 @@ interface LeadRowProps {
 }
 
 export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
+  const emailReady = lead.contact_verified || lead.contact_email_source === 'website';
+  const emailTitle = lead.contact_email_source === 'website'
+    ? 'Published on the company website'
+    : lead.contact_verified
+      ? 'Verified by the configured enrichment provider'
+      : `${lead.contact_email || 'No email'} - a published address or provider verification is required before sending.`;
+
   // Color-coded styling per specification:
   // Blue for 'Queued'
   // Green for 'Sent successfully'
@@ -18,6 +25,8 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
     switch (lead.status) {
       case 'queued':
         return 'bg-blue-950/20 hover:bg-blue-950/30 border-l-4 border-l-blue-500 border-b border-b-slate-800/80';
+      case 'pending_contact':
+        return 'bg-amber-950/20 hover:bg-amber-950/30 border-l-4 border-l-amber-500 border-b border-b-slate-800/80';
       case 'sent':
         return 'bg-emerald-950/20 hover:bg-emerald-950/30 border-l-4 border-l-emerald-500 border-b border-b-slate-800/80';
       case 'failed':
@@ -45,7 +54,18 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
                 </span>
               )}
             </div>
-            <LiveCountdown targetDate={lead.scheduled_send_time} />
+            {lead.scheduled_send_time && <LiveCountdown targetDate={lead.scheduled_send_time} />}
+          </div>
+        );
+      case 'pending_contact':
+        return (
+          <div className="flex flex-col gap-1 items-start">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              PENDING_CONTACT
+            </span>
+            <span className="block max-w-[170px] whitespace-normal break-words text-[11px] text-amber-400/80">
+              {lead.error_message || 'Waiting for email resolution'}
+            </span>
           </div>
         );
       case 'sent':
@@ -103,6 +123,11 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
           <div className="min-w-0">
             <div className="font-semibold text-sm text-white flex items-center gap-1.5">
               <span className="truncate">{lead.company_name}</span>
+              {lead.source === 'product_hunt' && (
+                <span className="shrink-0 rounded bg-orange-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-orange-300">
+                  Product Hunt
+                </span>
+              )}
             </div>
             <div className="flex min-w-0 items-center gap-1 text-xs text-slate-400">
               <span
@@ -114,14 +139,10 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
               </span>
               <span className="shrink-0">•</span>
               <span
-                className={`block min-w-0 truncate font-mono ${lead.contact_verified ? 'text-slate-400' : 'text-amber-400'}`}
-                title={
-                  lead.contact_verified
-                    ? lead.contact_email
-                    : `${lead.contact_email || 'No email'} - provider verification required before sending.`
-                }
+                className={`block min-w-0 truncate font-mono ${emailReady ? 'text-slate-400' : 'text-amber-400'}`}
+                title={emailTitle}
               >
-                {lead.contact_verified ? lead.contact_email : 'Email unverified'}
+                {emailReady ? lead.contact_email : 'Email unverified'}
               </span>
             </div>
           </div>
@@ -165,8 +186,14 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
 
       {/* 5. Scheduled Send Time */}
       <td className="w-[160px] max-w-[160px] overflow-hidden px-4 py-3.5 whitespace-nowrap text-xs font-mono text-slate-300">
-        <div>{new Date(lead.scheduled_send_time).toLocaleDateString()}</div>
-        <div className="text-slate-500 font-semibold">{new Date(lead.scheduled_send_time).toLocaleTimeString()}</div>
+        {lead.scheduled_send_time ? (
+          <>
+            <div>{new Date(lead.scheduled_send_time).toLocaleDateString()}</div>
+            <div className="text-slate-500 font-semibold">{new Date(lead.scheduled_send_time).toLocaleTimeString()}</div>
+          </>
+        ) : (
+          <span className="font-sans text-amber-400">Not scheduled</span>
+        )}
       </td>
 
       {/* 6. Instant Action */}

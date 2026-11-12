@@ -9,10 +9,17 @@ interface QueueTableProps {
   onPreview: (lead: Lead) => void;
   onSendNow: (id: number) => void;
   onGenerate: () => void;
+  onGenerateProductHunt: () => void;
 }
 
-export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: QueueTableProps) {
-  const [statusFilter, setStatusFilter] = useState<'all' | 'queued' | 'sent' | 'failed' | 'rollover'>('all');
+export default function QueueTable({
+  leads,
+  onPreview,
+  onSendNow,
+  onGenerate,
+  onGenerateProductHunt,
+}: QueueTableProps) {
+  const [statusFilter, setStatusFilter] = useState<'all' | 'queued' | 'pending_contact' | 'sent' | 'failed' | 'rollover'>('all');
   const [countryFilter, setCountryFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
 
@@ -27,14 +34,16 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
     if (search.trim()) {
       const q = search.toLowerCase();
       const matchCompany = lead.company_name.toLowerCase().includes(q);
+      const matchDomain = lead.company_domain.toLowerCase().includes(q);
       const matchEmail = lead.contact_email.toLowerCase().includes(q);
       const matchContact = lead.contact_name?.toLowerCase().includes(q);
-      if (!matchCompany && !matchEmail && !matchContact) return false;
+      if (!matchCompany && !matchDomain && !matchEmail && !matchContact) return false;
     }
     return true;
   });
 
   const queuedCount = leads.filter((l) => l.status === 'queued').length;
+  const pendingContactCount = leads.filter((l) => l.status === 'pending_contact').length;
   const sentCount = leads.filter((l) => l.status === 'sent').length;
   const failedCount = leads.filter((l) => l.status === 'failed').length;
   const rolloverCount = leads.filter((l) => l.is_rollover).length;
@@ -78,6 +87,17 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
             Sent ({sentCount})
           </button>
           <button
+            onClick={() => setStatusFilter('pending_contact')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+              statusFilter === 'pending_contact'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-amber-400 hover:text-amber-300'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            PENDING_CONTACT ({pendingContactCount})
+          </button>
+          <button
             onClick={() => setStatusFilter('failed')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
               statusFilter === 'failed'
@@ -105,6 +125,13 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
 
         {/* Filter Controls: Country & Search */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={onGenerateProductHunt}
+            className="rounded-lg border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-xs font-semibold text-orange-300 hover:bg-orange-500/20"
+            title="Find recent developer-focused launches from Product Hunt"
+          >
+            Find Product Hunt launches
+          </button>
           {/* Country Filter */}
           <select
             value={countryFilter}
@@ -180,7 +207,7 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
                     </div>
                     <h4 className="text-base font-semibold text-white">No Leads in Selected View</h4>
                     <p className="text-xs text-slate-400">
-                      The engine checks company team pages for a relevant decision-maker, verifies their business email through the configured enrichment provider, and audits actual documentation. It only queues verified contacts; batches may contain fewer than 30 leads.
+                      The engine saves a prospect after finding a relevant leader and a verified documentation issue. Contacts with a resolved email enter the 20-minute queue; others stay in PENDING_CONTACT until enrichment succeeds.
                     </p>
                     <button
                       onClick={onGenerate}
@@ -202,7 +229,7 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
           Showing {filteredLeads.length} of {leads.length} total pitches ({rolloverCount} rolled over)
         </span>
         <span className="font-mono text-[11px] text-slate-400">
-          20-minute spacing • Max 30 pitches/day • Verified prospects only
+          20-minute spacing • Max 30 pitches/day • Pending contacts await email resolution
         </span>
       </div>
     </div>

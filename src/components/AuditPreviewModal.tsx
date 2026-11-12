@@ -10,6 +10,12 @@ interface AuditPreviewModalProps {
 
 export default function AuditPreviewModal({ lead, onClose, onSendNow }: AuditPreviewModalProps) {
   if (!lead) return null;
+  const emailReady = lead.contact_verified || lead.contact_email_source === 'website';
+  const emailLabel = lead.contact_email_source === 'website'
+    ? `${lead.contact_email} · Published on company website`
+    : emailReady
+      ? lead.contact_email
+      : 'Email unverified';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
@@ -27,7 +33,7 @@ export default function AuditPreviewModal({ lead, onClose, onSendNow }: AuditPre
               </h3>
               <p className="text-xs text-slate-400">
                 {lead.contact_title ? `${lead.contact_title} · ` : ''}
-                {lead.contact_verified ? lead.contact_email : 'Email unverified'}
+                {emailLabel}
               </p>
             </div>
           </div>
@@ -142,7 +148,11 @@ export default function AuditPreviewModal({ lead, onClose, onSendNow }: AuditPre
         <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-between bg-slate-950/60">
           <div className="text-xs text-slate-400">
             Status: <span className="font-semibold uppercase text-slate-200">{lead.status}</span> • Scheduled:{' '}
-            <span className="font-mono">{new Date(lead.scheduled_send_time).toLocaleTimeString()}</span>
+            <span className="font-mono">
+              {lead.scheduled_send_time
+                ? new Date(lead.scheduled_send_time).toLocaleTimeString()
+                : 'Pending contact resolution'}
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
