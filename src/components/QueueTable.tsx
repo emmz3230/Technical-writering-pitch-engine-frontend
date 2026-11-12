@@ -180,7 +180,7 @@ export default function QueueTable({ leads, onPreview, onSendNow, onGenerate }: 
                     </div>
                     <h4 className="text-base font-semibold text-white">No Leads in Selected View</h4>
                     <p className="text-xs text-slate-400">
-                      The engine checks company sites for a published role contact email and audits their actual documentation. It only queues a pitch when it finds both; batches may contain fewer than 30 leads.
+                      The engine checks company team pages for a relevant decision-maker, verifies their business email through the configured enrichment provider, and audits actual documentation. It only queues verified contacts; batches may contain fewer than 30 leads.
                     </p>
                     <button
                       onClick={onGenerate}

@@ -105,13 +105,23 @@ export default function LeadRow({ lead, onPreview, onSendNow }: LeadRowProps) {
               <span className="truncate">{lead.company_name}</span>
             </div>
             <div className="flex min-w-0 items-center gap-1 text-xs text-slate-400">
-              <span className="min-w-0 truncate">{lead.contact_name || 'Technical Writer Lead'}</span>
+              <span
+                className="min-w-0 truncate"
+                title={lead.contact_title || undefined}
+              >
+                {lead.contact_name || 'Technical Writer Lead'}
+                {lead.contact_title ? ` · ${lead.contact_title}` : ''}
+              </span>
               <span className="shrink-0">•</span>
               <span
-                className={`block min-w-0 truncate font-mono ${lead.contact_email ? 'text-slate-400' : 'text-amber-400'}`}
-                title={lead.contact_email || 'A verified contact email is required before sending.'}
+                className={`block min-w-0 truncate font-mono ${lead.contact_verified ? 'text-slate-400' : 'text-amber-400'}`}
+                title={
+                  lead.contact_verified
+                    ? lead.contact_email
+                    : `${lead.contact_email || 'No email'} - provider verification required before sending.`
+                }
               >
-                {lead.contact_email || 'Email required'}
+                {lead.contact_verified ? lead.contact_email : 'Email unverified'}
               </span>
             </div>
           </div>

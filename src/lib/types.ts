@@ -12,7 +12,9 @@ export interface Lead {
   batch_id: string;
   company_name: string;
   contact_name: string;
+  contact_title: string;
   contact_email: string;
+  contact_verified: boolean;
   country: 'US' | 'UK' | 'CA' | 'AU' | 'IE' | 'NZ';
   doc_url: string;
   documentation_snippet: string;

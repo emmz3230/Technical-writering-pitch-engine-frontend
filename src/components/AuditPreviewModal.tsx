@@ -25,7 +25,10 @@ export default function AuditPreviewModal({ lead, onClose, onSendNow }: AuditPre
                 {lead.company_name}
                 <span className="text-xs font-normal text-slate-400">({lead.contact_name || 'Tech Docs Team'})</span>
               </h3>
-              <p className="text-xs text-slate-400">{lead.contact_email}</p>
+              <p className="text-xs text-slate-400">
+                {lead.contact_title ? `${lead.contact_title} · ` : ''}
+                {lead.contact_verified ? lead.contact_email : 'Email unverified'}
+              </p>
             </div>
           </div>
           <button
